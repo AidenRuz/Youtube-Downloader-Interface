@@ -47,7 +47,7 @@ def main():
     print(color.RED + color.BOLD + "Welcome to Youtube-Downloader-Interface!" + color.END)
     print(color.YELLOW + "Where would you like to download?" + color.END)
     print(color.YELLOW + "1: Current Working Directory (" + currentPath + ")" + color.END)
-    print(color.YELLOW + "2: Where the python file was run from (" + filePath + ")" + color.END)
+    print(color.YELLOW + "2: Python File Directory (" + filePath + ")" + color.END)
     print(color.YELLOW + "3: Enter path manually")
     while(True):
         value = input(color.CYAN + "Enter response here: " + color.END)
