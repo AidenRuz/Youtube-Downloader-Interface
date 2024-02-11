@@ -1,34 +1,26 @@
+# pip install pytube
 from pytube import YouTube
 from pathlib import Path
+from os import path
+
+# Used to add color to printed text in terminal
+class color:
+   PURPLE = '\033[95m'
+   CYAN = '\033[96m'
+   DARKCYAN = '\033[36m'
+   BLUE = '\033[94m'
+   GREEN = '\033[92m'
+   YELLOW = '\033[93m'
+   RED = '\033[91m'
+   BOLD = '\033[1m'
+   UNDERLINE = '\033[4m'
+   END = '\033[0m'
 
 # Declarations
-link = ""
-selector = 2
-audioPath = str(Path(__file__).parent.absolute()) + "\\Downloads\\audio"
-videoPath = str(Path(__file__).parent.absolute()) + "\\Downloads\\video"
-
-
-# Main download function
-def download(link, selector):
-    youtubeObject = YouTube(link)
-    
-    if selector == 1:
-        youtubeObject = youtubeObject.streams.filter(only_audio=True)
-    else:
-        youtubeObject = youtubeObject.streams.filter(file_extension="mp4")
-    
-    # List streams and allow user to select which stream to download
-    youtubeObject = selectStream(youtubeObject)
-    
-    try:
-        if selector == 1:
-            youtubeObject.download(audioPath)
-        else:
-            youtubeObject.download(videoPath)
-    except:
-        print("An error has occurred.")
-        return
-    print("Download completed successfully.")
+filePath = str(Path(__file__).parent.absolute())
+currentPath = str(Path.cwd().absolute())
+audioPath = "\\Downloads\\audio"
+videoPath = "\\Downloads\\video"
 
 
 # List all the downloadable streams from the link
@@ -38,10 +30,10 @@ def selectStream(youtubeObject):
     for index, item in enumerate(youtubeObject):
         downloads.append(item)
         print(str(index) + ": " + str(item))
-    print("Select which version you would like to download: ")
+    print(color.YELLOW + "Select which version you would like to download." + color.END)
     # Input validation
     while(True):
-        streamIndex = int(input())
+        streamIndex = int(input(color.CYAN + "Enter response here: " + color.END))
         if streamIndex < 0 or streamIndex > (len(downloads) - 1):
              print("Error: Please enter a value between the range shown above.")
         else:
@@ -52,25 +44,76 @@ def selectStream(youtubeObject):
 
 # Takes user input and passes it to the main download function
 def main():
-    global selector
-    print("Enter the YouTube video URL: ")
-    link = input()
-    print("Would you like to download audio or video? (Default Video)")
-    print("1: Audio")
-    print("2: Video")
-    # Input validation
+    print(color.RED + color.BOLD + "Welcome to Youtube-Downloader-Interface!" + color.END)
+    print(color.YELLOW + "Where would you like to download?" + color.END)
+    print(color.YELLOW + "1: Current Working Directory (" + currentPath + ")" + color.END)
+    print(color.YELLOW + "2: Where the python file was run from (" + filePath + ")" + color.END)
+    print(color.YELLOW + "3: Enter path manually")
     while(True):
-        value = input()
+        value = input(color.CYAN + "Enter response here: " + color.END)
         if value == "1":
-            selector = 1
+            selectedPath = currentPath
             break
         elif value == "2":
-            selector = 2
+            selectedPath = filePath
+            break
+        elif value == "3":
+            # Takes custom path and ensures it exists
+            exists = False
+            while(exists == False):
+                selectedPath = input(color.CYAN + "Enter path here: " + color.END)
+                exists = path.exists(selectedPath)
+                if exists == True:
+                    print(color.GREEN + "Path Accepted." + color.END)
+                    break
+                else:
+                    print(color.RED + "Path Rejected." + color.END)
             break
         else:
-            print("Error: Please enter a value of 1 or 2.")
-    download(link, selector)
+            print(color.RED + "Error: Please enter a value of 1,2 or 3." + color.END)
+    
+    
+    
+    link = input(color.CYAN + "Enter the YouTube video URL: " + color.END)
+    print(color.YELLOW + "Would you like to download audio or video?" + color.END)
+    print(color.YELLOW + "1: Audio" + color.END)
+    print(color.YELLOW + "2: Video" + color.END)
+    # Input validation
+    while(True):
+        selector = int(input(color.CYAN + "Enter response here: " + color.END))
+        if (selector > 0) and (selector < 3):
+            break
+        else:
+            print(color.RED + "Error: Please enter a value of 1 or 2." + color.END)
+    
+    
+    # Setup pytube object
+    youtubeObject = YouTube(link)
+    
+    if selector == 1:
+        youtubeObject = youtubeObject.streams.filter(only_audio=True)
+        if value != 3:
+            selectedPath += audioPath
+    else:
+        youtubeObject = youtubeObject.streams.filter(file_extension="mp4")
+        if value != 3:
+            selectedPath += videoPath
+    
+    
+    # List streams and allow user to select which stream to download
+    youtubeObject = selectStream(youtubeObject)
+    
+    # Attempt download
+    try:
+        if selector == 1:
+            youtubeObject.download(selectedPath)
+        else:
+            youtubeObject.download(selectedPath)
+    except Exception as e:
+        print(color.RED + "Error: " + str(e) + color.END)
+        return
+    print(color.GREEN + "Download completed successfully." + color.END)
 
 
-# Executes the program
+# Execute the program
 main()
